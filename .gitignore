@@ -1,2 +1,9 @@
-.ideia/
-/labor-records/venv
+# PyCharm files
+.idea
+
+# Python Files
+venv
+
+# Google Api Files
+token.pickle
+credentials.json

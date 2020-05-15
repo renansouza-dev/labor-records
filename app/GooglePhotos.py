@@ -19,29 +19,31 @@ def get_files():
     """Shows basic usage of the Drive v1 API.
     Prints the names and ids of the first n files the user has access to.
     """
-    creds = None
+    credentials = None
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
-    if os.path.exists('token.pickle'):
-        with open('token.pickle', 'rb') as token:
-            creds = pickle.load(token)
+    if os.path.exists('resources/token.pickle'):
+        with open('resources/token.pickle', 'rb') as token:
+            credentials = pickle.load(token)
     # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
+    if not credentials or not credentials.valid:
+        if credentials and credentials.expired and credentials.refresh_token:
+            credentials.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
+            flow = InstalledAppFlow.from_client_secrets_file('resources/credentials.json', SCOPES)
+            credentials = flow.run_local_server(port=0)
         # Save the credentials for the next run
-        with open('token.pickle', 'wb') as token:
-            pickle.dump(creds, token)
+        with open('resources/token.pickle', 'wb') as token:
+            pickle.dump(credentials, token)
 
-    service = build('photoslibrary', 'v1', credentials=creds)
+    service = build('photoslibrary', 'v1', credentials=credentials)
 
     # Call the Photo v1 API
-    results = service.albums().list(pageSize=10, excludeNonAppCreatedData=False,
-                                    fields="nextPageToken,albums(id,title,mediaItemsCount)").execute()
+    results = service.albums().list(
+        pageSize=10,
+        excludeNonAppCreatedData=False,
+        fields="nextPageToken,albums(id,title,mediaItemsCount)").execute()
     items = results.get('albums', [])
 
     album = next((item for item in items[1:] if item["title"] == "Ponto"), None)
@@ -56,8 +58,11 @@ def get_files():
             api_search = api_request.execute()
 
             for photo in api_search['mediaItems']:
-                files.append({'filename': photo['filename'], 'url': photo['baseUrl']})
-            # print(api_search['mediaItems'][0])
+                files.append({
+                    'filename': photo['filename'],
+                    'url': photo['baseUrl'],
+                    'creationTime': photo['mediaMetadata']['creationTime']
+                })
 
             # mediaItems pagination management
             api_request = api.list_next(api_request, api_search)

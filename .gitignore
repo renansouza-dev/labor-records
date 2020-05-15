@@ -3,7 +3,7 @@
 
 # Python Files
 venv
- __pycache__
+ __pycache__/*
 
 # Google Api Files
 resources/*

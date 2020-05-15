@@ -5,5 +5,4 @@
 venv
 
 # Google Api Files
-token.pickle
-credentials.json
+resources/*

@@ -15,7 +15,7 @@ from googleapiclient.discovery import build
 SCOPES = ['https://www.googleapis.com/auth/photoslibrary.readonly']
 
 
-def main():
+def get_files():
     """Shows basic usage of the Drive v1 API.
     Prints the names and ids of the first n files the user has access to.
     """
@@ -48,21 +48,17 @@ def main():
     if not album:
         print('Album not found.')
     else:
-        photos_mediaitems_api = service.mediaItems()
-        print('Album {0} with id {1} has {2} photos'.format(album['title'].encode('utf8'), album['id'], album['mediaItemsCount']))
-        mediaitems_search_req = photos_mediaitems_api.search(body={'albumId': album['id'], "pageSize": min(100, int(album['mediaItemsCount']))})
+        api = service.mediaItems()
+        api_request = api.search(body={'albumId': album['id'], "pageSize": min(100, int(album['mediaItemsCount']))})
 
-        total_files = 0
-        while mediaitems_search_req is not None:
-            mediaitems_search = mediaitems_search_req.execute()
+        files = []
+        while api_request is not None:
+            api_search = api_request.execute()
 
-            total_files += len(mediaitems_search['mediaItems'])
-            # print(mediaitems_search['mediaItems'][0])
+            for photo in api_search['mediaItems']:
+                files.append({'filename': photo['filename'], 'url': photo['baseUrl']})
+            # print(api_search['mediaItems'][0])
 
             # mediaItems pagination management
-            mediaitems_search_req = photos_mediaitems_api.list_next(mediaitems_search_req, mediaitems_search)
-        print('Downloaded {0} files.'.format(total_files))
-
-
-if __name__ == '__main__':
-    main()
+            api_request = api.list_next(api_request, api_search)
+        return files

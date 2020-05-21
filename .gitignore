@@ -1,2 +1,9 @@
-.ideia/
-/labor-records/venv
+# PyCharm files
+.idea
+
+# Python Files
+venv
+app/__pycache__/
+
+# Google Api Files
+resources/

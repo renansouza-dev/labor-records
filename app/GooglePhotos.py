@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import datetime
 import os.path
 import pickle
 
@@ -11,11 +12,11 @@ from googleapiclient.discovery import build
 # https://stackoverflow.com/questions/56294506/mediaitems-search-next-returns-400
 
 # If modifying these scopes, delete the file token.pickle.
-# SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly']
-SCOPES = ['https://www.googleapis.com/auth/photoslibrary.readonly']
+_SCOPES = ['https://www.googleapis.com/auth/photoslibrary.readonly']
+_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
 
-def get_files():
+def get_files(last_processed):
     """Shows basic usage of the Drive v1 API.
     Prints the names and ids of the first n files the user has access to.
     """
@@ -31,7 +32,7 @@ def get_files():
         if credentials and credentials.expired and credentials.refresh_token:
             credentials.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file('resources/credentials.json', SCOPES)
+            flow = InstalledAppFlow.from_client_secrets_file('resources/credentials.json', _SCOPES)
             credentials = flow.run_local_server(port=0)
         # Save the credentials for the next run
         with open('resources/token.pickle', 'wb') as token:
@@ -58,11 +59,19 @@ def get_files():
             api_search = api_request.execute()
 
             for photo in api_search['mediaItems']:
-                files.append({
-                    'filename': photo['filename'],
-                    'url': photo['baseUrl'],
-                    'creationTime': photo['mediaMetadata']['creationTime']
-                })
+                photo_date = datetime.datetime.strptime(photo['mediaMetadata']['creationTime'], _FORMAT)
+
+                if last_processed is not None:
+                    datetime.datetime.strptime(last_processed, _FORMAT)
+                else:
+                    last_imported_date = datetime.datetime.now()
+
+                if photo_date < last_imported_date:
+                    files.append({
+                        'filename': photo['filename'],
+                        'url': photo['baseUrl'],
+                        'creationTime': photo['mediaMetadata']['creationTime']
+                    })
 
             # mediaItems pagination management
             api_request = api.list_next(api_request, api_search)

@@ -16,6 +16,5 @@ The following libraries will be installed when you install the client library:
 ## TODOs
 
 ### Google Photos
-* Add last processed filter
 * Add pytesseract to convert images into text
 * Add spreadsheet to save text 

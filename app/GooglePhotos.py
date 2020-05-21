@@ -68,7 +68,7 @@ def get_files(last_processed):
 
                 if photo_date < last_imported_date:
                     files.append({
-                        'filename': photo['filename'],
+                        'filename': photo['filename'].lower(),
                         'url': photo['baseUrl'],
                         'creationTime': photo['mediaMetadata']['creationTime']
                     })

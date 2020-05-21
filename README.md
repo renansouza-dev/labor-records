@@ -17,4 +17,5 @@ The following libraries will be installed when you install the client library:
 
 ### Google Photos
 * Add pytesseract to convert images into text
-* Add spreadsheet to save text 
+* Add spreadsheet to save text
+* Change filename for constants or env vars 
